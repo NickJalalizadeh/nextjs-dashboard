@@ -1,14 +1,13 @@
 'use server';
 
-import { signIn, signOut } from "@/auth";
+import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { User } from "@/app/lib/definitions";
 import postgres from 'postgres';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
   id: z.string(),
@@ -129,19 +128,5 @@ export async function authenticate(prevState: string | undefined, formData: Form
       }
     }
     throw error;
-  }
-}
-
-export async function authSignOut() {
-  await signOut({ redirectTo: '/' });
-}
-
-export async function getUser(email: string): Promise<User | undefined> {
-  try {
-    const user = await sql<User[]>`SELECT * FROM users WHERE email=${email}`;
-    return user[0];
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
   }
 }
